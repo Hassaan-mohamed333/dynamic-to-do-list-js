@@ -4,8 +4,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const taskInput = document.getElementById('task-input');
     const taskList = document.getElementById('task-list');
 
+    // Load tasks from Local Storage when the page loads
+    loadTasks();
+
     // Function to add a new task
-    function addTask() {
+    function addTask(saveToLocalStorage = true) {
         const taskText = taskInput.value.trim(); // Get and trim the input value
 
         if (taskText === '') {
@@ -30,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Attach an event to the "Remove" button to delete the task
         removeButton.onclick = () => {
             taskList.removeChild(taskItem); // Remove the task from the list
+            removeTaskFromLocalStorage(taskText); // Remove task from Local Storage
         };
 
         // Append the remove button to the <li>
@@ -38,12 +42,41 @@ document.addEventListener('DOMContentLoaded', () => {
         // Append the <li> to the task list
         taskList.appendChild(taskItem);
 
+        // Save the task to Local Storage if needed
+        if (saveToLocalStorage) {
+            saveTaskToLocalStorage(taskText);
+        }
+
         // Clear the input field
         taskInput.value = '';
     }
 
+    // Function to save a task to Local Storage
+    function saveTaskToLocalStorage(taskText) {
+        const storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        storedTasks.push(taskText);
+        localStorage.setItem('tasks', JSON.stringify(storedTasks));
+    }
+
+    // Function to remove a task from Local Storage
+    function removeTaskFromLocalStorage(taskText) {
+        const storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        const updatedTasks = storedTasks.filter(task => task !== taskText);
+        localStorage.setItem('tasks', JSON.stringify(updatedTasks));
+    }
+
+    // Function to load tasks from Local Storage
+    function loadTasks() {
+        const storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
+        storedTasks.forEach(taskText => {
+            taskInput.value = taskText; // Temporarily set the input value
+            addTask(false); // Add task without saving to Local Storage again
+        });
+        taskInput.value = ''; // Clear the input value after loading tasks
+    }
+
     // Add event listener to the "Add Task" button
-    addButton.addEventListener('click', addTask);
+    addButton.addEventListener('click', () => addTask());
 
     // Add tasks using the "Enter" key
     taskInput.addEventListener('keypress', (event) => {
