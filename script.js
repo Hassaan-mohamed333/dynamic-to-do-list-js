@@ -35,7 +35,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         taskInput.value = '';
     }
+    addButton.addEventListener('click', addTask);
 
+    taskInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            addTask();
+        }
+    });
+    
     function saveTaskToLocalStorage(taskText) {
         const storedTasks = JSON.parse(localStorage.getItem('tasks') || '[]');
         storedTasks.push(taskText);
